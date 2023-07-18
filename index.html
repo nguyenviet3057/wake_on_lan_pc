@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WOL PC</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+</head>
+<body style="display: flex; position: fixed; width: 100vw; height: 100vh; align-items: center; justify-content: center;">
+  <button style="width: 150px; height: 60px; cursor: pointer;" id="publishButton">Publish Message</button>
+
+  <script>
+    // Create a client instance
+    const client = new Paho.MQTT.Client('broker.hivemq.com', Number(8000), 'Darkin-PC');
+
+    // Set callback handlers
+    client.onConnectionLost = onConnectionLost;
+
+    // Connect to the MQTT broker
+    client.connect({
+      onSuccess: onConnect
+    });
+
+    // Called when the client connects
+    function onConnect() {
+      console.log('Connected to MQTT broker');
+      // Add event listener to the button
+      const button = document.getElementById('publishButton');
+      button.addEventListener('click', publishMessage);
+    }
+
+    // Called when the client loses the connection
+    function onConnectionLost(responseObject) {
+      if (responseObject.errorCode !== 0) {
+        console.log('Connection lost:', responseObject.errorMessage);
+      }
+    }
+
+    // Publishes a message to a topic
+    function publishMessage() {
+      // Create the message
+      const message = new Paho.MQTT.Message('Wake');
+      message.destinationName = 'WOLcommand';
+      // Publish the message
+      client.send(message);
+      console.log('Message published:', message.payloadString);
+    }
+  </script>
+</body>
+</html>
